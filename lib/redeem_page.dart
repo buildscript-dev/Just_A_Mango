@@ -2,24 +2,27 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Reward tiers. Unlocked when score >= [scoreNeeded].
+///
+/// Rewards are in-game **Mango Coins** only — a cosmetic gameplay reward. They
+/// are NOT real money and are NOT convertible to cash, so the app stays clear
+/// of "cash convertible rewards / play-to-earn" classification.
 class RewardTier {
-  const RewardTier({required this.scoreNeeded, required this.rupees});
+  const RewardTier({required this.scoreNeeded, required this.coins});
   final int scoreNeeded;
-  final int rupees;
+  final int coins;
 
   String get claimedKey => 'redeem_claimed_$scoreNeeded';
 }
 
 const List<RewardTier> kRewardTiers = [
-  RewardTier(scoreNeeded: 500, rupees: 500),
-  RewardTier(scoreNeeded: 1000, rupees: 1000),
+  RewardTier(scoreNeeded: 500, coins: 500),
+  RewardTier(scoreNeeded: 1000, coins: 1000),
 ];
 
 /// Redeem screen reached by long-pressing the score on the main page.
 ///
-/// IMPORTANT: This screen only RECORDS a claim locally and shows a confirmation.
-/// It does NOT transfer real money. Wiring an actual payout rail (UPI/KYC/fraud
-/// defense) is out of scope and must be added before promising real cash.
+/// Rewards are in-game **Mango Coins** only — purely cosmetic. No real money,
+/// no cash conversion, no payout. The claim is recorded locally for gameplay.
 class RedeemPage extends StatefulWidget {
   const RedeemPage({super.key, required this.score});
 
@@ -61,8 +64,8 @@ class _RedeemPageState extends State<RedeemPage> {
       builder: (ctx) => AlertDialog(
         title: const Text('Reward claimed 🥭'),
         content: Text(
-          'Your claim for Rs. ${tier.rupees} is recorded.\n\n'
-          '(Demo: no real money is transferred yet.)',
+          'You unlocked ${tier.coins} Mango Coins!\n\n'
+          'Mango Coins are an in-game reward only.',
         ),
         actions: [
           TextButton(
@@ -104,6 +107,14 @@ class _RedeemPageState extends State<RedeemPage> {
                         fontWeight: FontWeight.bold,
                       ),
                 ),
+                const SizedBox(height: 6),
+                Text(
+                  'Mango Coins are an in-game reward — not real money.',
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Colors.white70,
+                      ),
+                ),
                 const SizedBox(height: 20),
                 if (_loaded)
                   ...kRewardTiers.map(_buildTierCard)
@@ -132,7 +143,7 @@ class _RedeemPageState extends State<RedeemPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Rs. ${tier.rupees}',
+                    '${tier.coins} 🥭 Coins',
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
